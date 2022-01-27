@@ -1,0 +1,13 @@
+name = "TonieBox"
+uuid = "4cb4f027-0c81-4801-9c0d-6130da9e53c7"
+authors = ["Julius Krumbiegel <julius.krumbiegel@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
