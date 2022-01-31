@@ -129,7 +129,7 @@ module TonieBox
         chapters::Vector{Chapter} 
     end
     StructTypes.StructType(::Type{CreativeTonie}) = StructTypes.Struct()
-    Base.show(io::IO, ct::CreativeTonie) = print(io, """CreativeTonie(name: "$(ct.name)", number of chapters: $(length(ct.chapters)))""")
+    Base.show(io::IO, ct::CreativeTonie) = print(io, """CreativeTonie(name: "$(ct.name)")""")
 
     function creativetonies(household = current_household())
         JSON3.read(
@@ -209,19 +209,25 @@ module TonieBox
         return
     end
 
-    function download_mp3(f, url)
+    function download_mp3(f, url; from = nothing, to = nothing)
         mktempdir() do path
             filetrunk = joinpath(path, "download")
             filename = filetrunk * ".%(ext)s"
             filename_mp3 = filetrunk * ".mp3"
-            run(`youtube-dl -o $filename -x --audio-format mp3 $url`)
+            run(```yt-dlp -x --audio-format mp3 -o $filename $url```)
+            if from !== nothing || to !== nothing
+                filename_mp3_temp = filetrunk * "_temp.mp3"
+                mv(filename_mp3, filename_mp3_temp)
+                run(```ffmpeg -i $filename_mp3_temp $(from === nothing ? `` : `-ss $from`) $(to === nothing ? `` : `-to $to`) -c copy $filename_mp3```)
+                rm(filename_mp3_temp)
+            end
             @assert isfile(filename_mp3)
             f(filename_mp3)
         end
     end
 
-    function download_mp3_and_add_chapter(creativetonie, url, title)
-        download_mp3(url) do filepath
+    function download_mp3_and_add_chapter(creativetonie, url, title; from = nothing, to = nothing)
+        download_mp3(url; from = from, to = to) do filepath
             add_chapter_to_creative_tonie(creativetonie, filepath, title)
         end
     end
