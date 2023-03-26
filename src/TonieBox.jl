@@ -3,10 +3,6 @@ module TonieBox
     using JSON3
     using StructTypes
 
-    function __init__()
-        authenticate()
-    end
-
     const AUTH_URL = "https://login.tonies.com/auth/realms/tonies/protocol/openid-connect/token"
 
     const _access_token = Ref{String}()
@@ -40,8 +36,7 @@ module TonieBox
         @info "Authentication needed."
         print("Username: ")
         user = readline()
-        print("Password: ")
-        password = readline()
+        password = Base.getpass("Password: ")
         authenticate(user, password)
     end
 
